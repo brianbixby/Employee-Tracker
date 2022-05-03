@@ -1,9 +1,22 @@
 "use strict";
 
 const inquirer = require("inquirer");
+const mysql = require('mysql2');
+
+// Connect to database
+const db = mysql.createConnection(
+	{
+		host: 'localhost',
+		user: 'root',
+		password: 'foodfood',
+		database: 'employeetracker_db'
+	},
+	console.log(`Connected to the employeetracker_db database.`)
+);
 
 async function viewAllEmployees() {
 	try {
+		
 		await mainMenu();
 	} catch (err) {
 
