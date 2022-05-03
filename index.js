@@ -74,7 +74,6 @@ async function updateEmployeeRole() {
 		const titles = [], employeeNames = [];
 		roles[0].forEach(role => titles.push(role.title));
 		employees[0].forEach(employee => employeeNames.push(employee.first_name + " " + employee.last_name));
-
 		const updatedemployee = await inquirer.prompt([
 			{
 				type: 'list',
@@ -89,7 +88,6 @@ async function updateEmployeeRole() {
 				choices: titles
 			}
 		]);
-
 		const roleId = roles[0].find(role => role.title === updatedemployee.role).id;
 		const employeeId = employees[0].find(employee => employee.first_name + " " + employee.last_name == updatedemployee.name).id;
 		await db.query(`UPDATE employee SET role_id = ${roleId} WHERE employee.id = "${employeeId}";`);
