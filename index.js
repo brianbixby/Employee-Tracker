@@ -4,7 +4,6 @@ const inquirer = require("inquirer");
 const mysql = require('mysql2');
 const cTable = require('console.table');
 
-// Connect to database
 const db = mysql.createConnection(
 	{
 		host: 'localhost',
@@ -69,29 +68,30 @@ async function addEmployee() {
 
 async function updateEmployeeRole() {
 	try {
-		// to do db get employees and add it as the choices in the list
-		// const employees = await ;
-
-		// to do db get roles and add it as the choices in the list
-		// const roles = await ;
+		const roles = await db.query(`SELECT role.id, role.title FROM role;`);
+		const employees = await db.query(`SELECT employee.id, employee.first_name, employee.last_name FROM employee;`);
+		const titles = [], employeeNames = [];
+		roles[0].forEach(role => titles.push(role.title));
+		employees[0].forEach(employee => employeeNames.push(employee.first_name + " " + employee.last_name));
 
 		const updatedemployee = await inquirer.prompt([
 			{
 				type: 'list',
 				message: "Which employee's role do you want to update?",
 				name: 'name',
-				// to do: choices: employees
-				choices: ["Brian Bixby"]
+				choices: employeeNames
 			},
 			{
 				type: 'list',
 				message: "Which role do you want to assign the selected employee?",
 				name: 'role',
-				// to do: choices: roles
-				choices: ["Brian Bixby"]
+				choices: titles
 			}
 		]);
-		// to do: update employee in database
+
+		const roleId = roles[0].find(role => role.title === updatedemployee.role).id;
+		const employeeId = employees[0].find(employee => employee.first_name + " " + employee.last_name == updatedemployee.name).id;
+		await db.query(`UPDATE employee SET role_id = ${roleId} WHERE employee.id = "${employeeId}";`);
 		console.log(`Updated employee's role`);
 		await mainMenu();
 	} catch (err) {
@@ -112,8 +112,9 @@ async function viewAllRoles() {
 
 async function addRole() {
 	try {
-		// to do db get departments and add it as the choices in the list
-		// const departments = await ;
+		const departments = await db.query(`SELECT * FROM department;`);
+		const departmentNames = [];
+		departments[0].forEach(department => departmentNames.push(department.name));
 		const role = await inquirer.prompt([
 			{
 				name: "name",
@@ -129,11 +130,11 @@ async function addRole() {
 				type: 'list',
 				message: 'Which department does the role belong to?',
 				name: 'department',
-				// to do: choices: departments
-				choices: ["Sales", "Engineering", "Finance", "Legal"]
+				choices: departmentNames
 			}
 		]);
-		// to do: add role to database
+		const departmentId = departments[0].find(department => department.name === role.department).id;
+		await db.query(`INSERT INTO role (title, department_id, salary) VALUES ("${role.name}", ${departmentId}, ${role.salary});`);
 		console.log(`Added ${role.name} to the database`);
 		await mainMenu();
 	} catch (err) {
