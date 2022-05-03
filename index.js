@@ -29,9 +29,12 @@ async function addEmployee() {
 	try {
 		// to do db get roles and add it as the choices in the list
 		// const roles = await ;
+		const roles = await db.query(`SELECT role.id, role.title FROM role`)[0];
 
 		// to do db get managers and add it as the choices in the list
-		// const managers = await ;
+		const managers = await db.query(`SELECT employee.id, employee.first_name, employee.last_name FROM employee LEFT JOIN role ON employee.role_id = role.id  WHERE role.title CONTAINS "Lead Or Manager";`)[0];
+		console.log(roles)
+		console.log(managers);
 		// managers.unshift("None");
 		const employee = await inquirer.prompt([
 			{
