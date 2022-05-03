@@ -11,8 +11,7 @@ const db = mysql.createConnection(
 		user: 'root',
 		password: 'foodfood',
 		database: 'employeetracker_db'
-	},
-	console.log(`Connected to the employeetracker_db database.`)
+	}
 ).promise();
 
 async function viewAllEmployees() {
@@ -21,7 +20,7 @@ async function viewAllEmployees() {
 		console.table(employees[0]);
 		await mainMenu();
 	} catch (err) {
-		console.log("viewAllRoles error: ", err);
+		throw err;
 	}
 }
 
@@ -93,7 +92,7 @@ async function updateEmployeeRole() {
 			}
 		]);
 		// to do: update employee in database
-		// to do message: `Updated employee's role`;
+		console.log(`Updated employee's role`);
 		await mainMenu();
 	} catch (err) {
 		if (err.isTtyError) console.log("Prompt couldn't be rendered in the current environment");
@@ -107,7 +106,7 @@ async function viewAllRoles() {
 		console.table(roles[0]);
 		await mainMenu();
 	} catch (err) {
-		console.log("viewAllRoles error: ", err);
+		throw err;
 	}
 }
 
@@ -135,7 +134,7 @@ async function addRole() {
 			}
 		]);
 		// to do: add role to database
-		// to do message: `Added ${role.name} to the database`;
+		console.log(`Added ${role.name} to the database`);
 		await mainMenu();
 	} catch (err) {
 		if (err.isTtyError) console.log("Prompt couldn't be rendered in the current environment");
@@ -145,9 +144,11 @@ async function addRole() {
 
 async function viewAllDepartments() {
 	try {
+		const departments = await db.query(`SELECT * FROM department;`);
+		console.table(departments[0]);
 		await mainMenu();
 	} catch (err) {
-
+		throw err;
 	}
 }
 
@@ -160,8 +161,8 @@ async function addDepartment() {
 				type: "input"
 			}
 		]);
-		// to do: add message to database
-		// to do message: `Added ${department.name} to the database`;
+		await db.query(`INSERT INTO department (name) VALUES ("${department.name}");`);
+		console.log(`Added ${department.name} to the database`);
 		await mainMenu();
 	} catch (err) {
 		if (err.isTtyError) console.log("Prompt couldn't be rendered in the current environment");
