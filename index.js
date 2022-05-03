@@ -27,15 +27,12 @@ async function viewAllEmployees() {
 
 async function addEmployee() {
 	try {
-		// to do db get roles and add it as the choices in the list
-		// const roles = await ;
-		const roles = await db.query(`SELECT role.id, role.title FROM role`)[0];
-
-		// to do db get managers and add it as the choices in the list
-		const managers = await db.query(`SELECT employee.id, employee.first_name, employee.last_name FROM employee LEFT JOIN role ON employee.role_id = role.id  WHERE role.title CONTAINS "Lead Or Manager";`)[0];
-		console.log(roles)
-		console.log(managers);
-		// managers.unshift("None");
+		const roles = await db.query(`SELECT role.id, role.title FROM role;`);
+		const managers = await db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee LEFT JOIN role ON employee.role_id = role.id  WHERE role.title LIKE '%Lead%' OR  role.title LIKE '%Manager%';`);
+		const titles = [], names = [];
+		roles[0].forEach(role => titles.push(role.title));
+		managers[0].forEach(manager => names.push(manager.first_name + " " + manager.last_name));
+		names.push("None");
 		const employee = await inquirer.prompt([
 			{
 				name: "firstName",
@@ -51,19 +48,19 @@ async function addEmployee() {
 				type: 'list',
 				message: "What is the employee's role?",
 				name: 'role',
-				// to do: choices: roles
-				choices: ["Sales Lead", "Sales Person", "Lead Engineer", "Software Engineer"]
+				choices: titles
 			},
 			{
 				type: 'list',
 				message: "Who is the employee's manager?",
 				name: 'manager',
-				// to do: choices: managers
-				choices: ["Sales Lead", "Sales Person", "Lead Engineer", "Software Engineer"]
+				choices: names
 			}
 		]);
-		// to do: add employee to database
-		// to do message: `Added ${employee.firstName} ${employee.lastName} to the database`;
+		const chosenRole = roles[0].find(role => role.title === employee.role).id;
+		const manager = employee.manager == "None" ? null : managers[0].find(manager => manager.first_name + " " + manager.last_name == employee.manager).id;
+		await db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${employee.firstName}", "${employee.lastName}", ${chosenRole}, ${manager});`);
+		console.log(`Added ${employee.firstName} ${employee.lastName} to the database`);
 		await mainMenu();
 	} catch (err) {
 		if (err.isTtyError) console.log("Prompt couldn't be rendered in the current environment");
