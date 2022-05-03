@@ -2,6 +2,7 @@
 
 const inquirer = require("inquirer");
 const mysql = require('mysql2');
+const cTable = require('console.table');
 
 // Connect to database
 const db = mysql.createConnection(
@@ -12,14 +13,15 @@ const db = mysql.createConnection(
 		database: 'employeetracker_db'
 	},
 	console.log(`Connected to the employeetracker_db database.`)
-);
+).promise();
 
 async function viewAllEmployees() {
 	try {
-		
+		const employees = await db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary, department.name AS department, CONCAT(e.first_name, ' ', e.last_name) as manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee e ON employee.manager_id = e.id;`);
+		console.table(employees[0]);
 		await mainMenu();
 	} catch (err) {
-
+		console.log("viewAllRoles error: ", err);
 	}
 }
 
@@ -101,9 +103,11 @@ async function updateEmployeeRole() {
 
 async function viewAllRoles() {
 	try {
+		const roles = await db.query(`SELECT role.id, role.title, department.name AS department, role.salary FROM role LEFT JOIN department ON role.department_id = department.id;`);
+		console.table(roles[0]);
 		await mainMenu();
 	} catch (err) {
-
+		console.log("viewAllRoles error: ", err);
 	}
 }
 
@@ -208,4 +212,4 @@ async function mainMenu() {
 	}
 }
 
-await mainMenu();
+mainMenu();
