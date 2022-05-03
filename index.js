@@ -26,11 +26,12 @@ async function viewAllEmployees() {
 async function addEmployee() {
 	try {
 		const roles = await db.query(`SELECT role.id, role.title FROM role;`);
-		const managers = await db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee LEFT JOIN role ON employee.role_id = role.id  WHERE role.title LIKE '%Lead%' OR  role.title LIKE '%Manager%';`);
-		const titles = [], names = [];
+		// commented out code that filters by job title
+		// const managers = await db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee LEFT JOIN role ON employee.role_id = role.id  WHERE role.title LIKE '%Lead%' OR  role.title LIKE '%Manager%';`);
+		const managers = await db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee LEFT JOIN role ON employee.role_id = role.id;`);
+		const titles = [], names = ["None"];
 		roles[0].forEach(role => titles.push(role.title));
 		managers[0].forEach(manager => names.push(manager.first_name + " " + manager.last_name));
-		names.push("None");
 		const employee = await inquirer.prompt([
 			{
 				name: "firstName",
